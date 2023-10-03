@@ -44,4 +44,15 @@ public class ServerHealthRepository : IServerHealthRepository
 
         return await query.ToListAsync();
     }
+    
+    public async Task<IEnumerable<ServerHealth>> GetMultiple(string[] appName, string[] region, int page, int pageSize)
+    {
+        var query = _context.ServerHealth
+            .Where(s => appName.Contains(s.AppName) || region.Contains(s.Region))
+            .OrderBy(s => s.SerialNum)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize);
+
+        return await query.ToListAsync();
+    }
 }

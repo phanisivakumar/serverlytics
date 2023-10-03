@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Serverlytics.Context;
 using Serverlytics.Repository;
 
 namespace Serverlytics.Controllers;
@@ -9,11 +7,6 @@ namespace Serverlytics.Controllers;
 [Route("[controller]")]
 public class ServerHealthController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-
     private readonly ILogger<ServerHealthController> _logger;
     private readonly IServerHealthRepository _repository;
     
@@ -41,6 +34,13 @@ public class ServerHealthController : ControllerBase
     public async Task<ActionResult<IEnumerable<ServerHealth>>> Get(string appName, string region, string primaryServer, int page = 1, int pageSize = 10)
     {
         var results = await _repository.Get(appName, region, primaryServer, page, pageSize);
+        return Ok(results);
+    }
+    
+    [HttpPost("by-multiple")]
+    public async Task<ActionResult<IEnumerable<ServerHealth>>> GetMultiple([FromBody] FilterModel filter)
+    {
+        var results = await _repository.GetMultiple(filter.AppNames, filter.Regions, filter.Page,filter.PageSize);
         return Ok(results);
     }
 }
